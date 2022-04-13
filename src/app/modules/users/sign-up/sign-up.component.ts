@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { ToastrServiceService } from 'src/app/core/toastr-service.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -17,7 +17,10 @@ export class SignUpComponent implements OnInit {
     password: new FormControl(null, [Validators.required]),
     confirmPassword: new FormControl(null, []),
   });
-  constructor(private router: Router, private toastrService: ToastrService) {}
+  constructor(
+    private router: Router,
+    private toastrServiceService: ToastrServiceService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -25,12 +28,19 @@ export class SignUpComponent implements OnInit {
     try {
       if (!this.signUpForm.valid) throw new Error('Formulário inválido');
       const formValue = this.signUpForm.value;
-    } catch (error) {
-      console.log(error);
-      this.toastrService.error(
-        'Ocorreu um erro, favor verificar os dados informados.',
-        'Erro'
+
+      if (formValue.password !== formValue.confirmPassword) {
+        return this.toastrServiceService.warning('Senhas não conferem');
+      }
+
+      return this.toastrServiceService.success(
+        'Cadastro realizado com sucesso'
       );
+    } catch (error) {
+      this.toastrServiceService.error(
+        'Ocorreu um erro, favor verificar os dados informados.'
+      );
+      return;
     }
   }
 
